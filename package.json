@@ -1,0 +1,15 @@
+{
+  "name": "redditclone",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "install:all": "cmd /c npm install --workspaces",
+    "dev:client": "cmd /c npm --workspace client run dev",
+    "dev:server": "cmd /c npm --workspace server run dev",
+    "build": "cmd /c npm --workspace server run build && cmd /c npm --workspace client run build"
+  }
+}

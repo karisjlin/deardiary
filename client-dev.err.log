@@ -1,0 +1,7 @@
+npm error Lifecycle script `dev` failed with error:
+npm error code 1
+npm error path C:\Users\Admin\Documents\Projects\Geminitest\redditclone\client
+npm error workspace client@1.0.0
+npm error location C:\Users\Admin\Documents\Projects\Geminitest\redditclone\client
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c vite --host 0.0.0.0
