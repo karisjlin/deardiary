@@ -19,6 +19,15 @@ export interface Post {
   favourited_by_me: boolean;
 }
 
+export interface Comment {
+  id: number;
+  post_id: number;
+  user_id: number;
+  author_username: string;
+  body: string;
+  created_at: string;
+}
+
 export interface AuthResponse {
   token: string;
   user: User;

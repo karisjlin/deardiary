@@ -6,6 +6,7 @@ import {
   getPosts,
   likePost
 } from "../controllers/postController.js";
+import { addComment, getComments, removeComment } from "../controllers/commentController.js";
 import { requireAuth } from "../middleware/auth.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -16,3 +17,7 @@ postRoutes.get("/:postId", asyncHandler(getPostById));
 postRoutes.post("/", requireAuth, asyncHandler(addPost));
 postRoutes.post("/:postId/like", requireAuth, asyncHandler(likePost));
 postRoutes.post("/:postId/favourite", requireAuth, asyncHandler(favouritePost));
+
+postRoutes.get("/:postId/comments", asyncHandler(getComments));
+postRoutes.post("/:postId/comments", requireAuth, asyncHandler(addComment));
+postRoutes.delete("/:postId/comments/:commentId", requireAuth, asyncHandler(removeComment));

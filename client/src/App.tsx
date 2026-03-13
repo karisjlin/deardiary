@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { useAuth } from "./context/AuthContext";
+import { AccountPage } from "./pages/AccountPage";
 import { HomePage } from "./pages/HomePage";
 import { LandingPage } from "./pages/LandingPage";
 import { PostDetailPage } from "./pages/PostDetailPage";
@@ -25,6 +26,7 @@ export const App = () => {
       <Route path="/posts/:postId" element={<PostDetailPage />} />
       <Route path="/app" element={<ProtectedApp />}>
         <Route index element={<HomePage />} />
+        <Route path="account" element={<AccountPage />} />
       </Route>
     </Routes>
   );

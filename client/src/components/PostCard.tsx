@@ -1,6 +1,7 @@
 import FavoriteBorderRounded from "@mui/icons-material/FavoriteBorderRounded";
 import ThumbUpOffAltRounded from "@mui/icons-material/ThumbUpOffAltRounded";
 import { Button, Chip, Paper, Stack, Typography } from "@mui/material";
+import { Link } from "react-router-dom";
 import type { Post } from "../types";
 
 export const PostCard = ({
@@ -21,7 +22,9 @@ export const PostCard = ({
         </Typography>
       </Stack>
       <Typography variant="h5" sx={{ mb: 1 }}>
-        {post.title}
+        <Link to={`/posts/${post.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+          {post.title}
+        </Link>
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 2 }}>
         {post.body}

@@ -30,7 +30,7 @@ export const LandingPage = () => {
     const loadPosts = async () => {
       try {
         const { data } = await api.get<Post[]>("/posts");
-        setPosts(data.slice(0, 5));
+        setPosts([...data].sort((a, b) => b.likes_count - a.likes_count).slice(0, 5));
       } catch {
         setError("Unable to load recent posts.");
       }
@@ -85,7 +85,7 @@ export const LandingPage = () => {
             </Stack>
             <Divider flexItem />
             <Stack spacing={2}>
-              <Typography variant="h5">Recent posts</Typography>
+              <Typography variant="h5">Most liked posts</Typography>
               {error ? <Alert severity="warning">{error}</Alert> : null}
               {posts.map((post) => (
                 <Box key={post.id} className="landing-post">

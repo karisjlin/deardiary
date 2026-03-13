@@ -27,7 +27,14 @@ export const Layout = () => {
             DearDiary
           </Typography>
           <Stack direction="row" spacing={2} alignItems="center">
-            <Typography variant="body2">@{user?.username}</Typography>
+            <Typography
+              variant="body2"
+              component={RouterLink}
+              to="/app/account"
+              sx={{ textDecoration: "none", color: "inherit" }}
+            >
+              @{user?.username}
+            </Typography>
             <Button
               color="secondary"
               variant="outlined"

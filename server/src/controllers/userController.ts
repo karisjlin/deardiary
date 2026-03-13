@@ -1,5 +1,7 @@
+import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
-import { findUserById, listUsers } from "../models/userModel.js";
+import { z } from "zod";
+import { findUserById, listUsers, updateUserPassword } from "../models/userModel.js";
 
 export const getCurrentUser = async (request: Request, response: Response) => {
   const userId = request.user?.id;
@@ -15,6 +17,20 @@ export const getCurrentUser = async (request: Request, response: Response) => {
   }
 
   return response.json(user);
+};
+
+export const changePassword = async (request: Request, response: Response) => {
+  const userId = request.user?.id;
+
+  if (!userId) {
+    return response.status(401).json({ message: "Authentication required." });
+  }
+
+  const { newPassword } = z.object({ newPassword: z.string().min(6) }).parse(request.body);
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+  await updateUserPassword(userId, passwordHash);
+
+  return response.json({ message: "Password updated." });
 };
 
 export const getUsers = async (_request: Request, response: Response) => {

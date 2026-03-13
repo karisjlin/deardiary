@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { api } from "../api/client";
+import { CommentSection } from "../components/CommentSection";
 import { useAuth } from "../context/AuthContext";
 import type { Post } from "../types";
 
@@ -102,6 +103,7 @@ export const PostDetailPage = () => {
               </Stack>
             </Paper>
           ) : null}
+          {post ? <CommentSection postId={post.id} /> : null}
         </Stack>
       </Container>
     </Box>
