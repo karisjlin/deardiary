@@ -11,7 +11,7 @@ import {
 const createPostSchema = z.object({
   title: z.string().min(4).max(160),
   body: z.string().min(10).max(4000),
-  community: z.string().min(2).max(80).default("general")
+  communities: z.array(z.string().min(1).max(80)).min(1).default(["general"])
 });
 
 const postIdSchema = z.object({
@@ -36,7 +36,7 @@ export const getPostById = async (request: Request, response: Response) => {
 
 export const addPost = async (request: Request, response: Response) => {
   const payload = createPostSchema.parse(request.body);
-  await createPost(request.user!.id, payload.title, payload.body, payload.community);
+  await createPost(request.user!.id, payload.title, payload.body, payload.communities);
   const posts = await listPosts(request.user!.id);
   return response.status(201).json(posts[0]);
 };

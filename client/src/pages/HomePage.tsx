@@ -1,4 +1,6 @@
-import { Alert, Box, Stack, Typography } from "@mui/material";
+import { Alert, Box, Dialog, DialogContent, DialogTitle, Fab, IconButton, Stack, Typography } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useState } from "react";
 import { api } from "../api/client";
 import { PostCard } from "../components/PostCard";
@@ -8,6 +10,7 @@ import type { Post } from "../types";
 export const HomePage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [composerOpen, setComposerOpen] = useState(false);
 
   const loadPosts = async () => {
     try {
@@ -25,9 +28,10 @@ export const HomePage = () => {
   const createPost = async (payload: {
     title: string;
     body: string;
-    community: string;
+    communities: string[];
   }) => {
     await api.post("/posts", payload);
+    setComposerOpen(false);
     await loadPosts();
   };
 
@@ -42,33 +46,45 @@ export const HomePage = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: "grid",
-        gap: 3,
-        gridTemplateColumns: {
-          xs: "1fr",
-          md: "minmax(280px, 360px) 1fr"
-        }
-      }}
-    >
-      <Box>
-        <PostComposer onSubmit={createPost} />
-      </Box>
-      <Box>
-        <Stack spacing={2}>
-          <Typography variant="h4">Latest posts</Typography>
-          {error ? <Alert severity="error">{error}</Alert> : null}
-          {posts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              onLike={likePost}
-              onFavourite={favouritePost}
-            />
-          ))}
-        </Stack>
-      </Box>
+    <Box>
+      <Stack spacing={2}>
+        <Typography variant="h4">Latest posts</Typography>
+        {error ? <Alert severity="error">{error}</Alert> : null}
+        {posts.map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            onLike={likePost}
+            onFavourite={favouritePost}
+          />
+        ))}
+      </Stack>
+
+      <Fab
+        onClick={() => setComposerOpen(true)}
+        sx={{
+          position: "fixed",
+          bottom: 32,
+          right: 32,
+          bgcolor: "primary.main",
+          color: "white",
+          "&:hover": { bgcolor: "primary.dark" }
+        }}
+      >
+        <AddIcon />
+      </Fab>
+
+      <Dialog open={composerOpen} onClose={() => setComposerOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          Create a post
+          <IconButton onClick={() => setComposerOpen(false)}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <PostComposer onSubmit={createPost} />
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

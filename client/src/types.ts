@@ -9,7 +9,7 @@ export interface Post {
   id: number;
   title: string;
   body: string;
-  community: string;
+  community: string[];
   created_at: string;
   author_id: number;
   author_username: string;

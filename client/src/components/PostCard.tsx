@@ -16,7 +16,19 @@ export const PostCard = ({
   return (
     <Paper className="post-card" elevation={0}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-        <Chip label={`r/${post.community}`} color="primary" variant="outlined" />
+        <Stack direction="row" spacing={1} flexWrap="wrap">
+          {post.community.map((c) => (
+            <Chip
+              key={c}
+              label={`d/${c}`}
+              color="primary"
+              variant="outlined"
+              component={Link}
+              to={`/app/d/${c}`}
+              clickable
+            />
+          ))}
+        </Stack>
         <Typography variant="body2" color="text.secondary">
           @{post.author_username}
         </Typography>

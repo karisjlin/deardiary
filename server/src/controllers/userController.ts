@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
 import { z } from "zod";
 import { findUserById, listUsers, updateUserPassword } from "../models/userModel.js";
+import { listPostsByUser } from "../models/postModel.js";
 
 export const getCurrentUser = async (request: Request, response: Response) => {
   const userId = request.user?.id;
@@ -36,4 +37,11 @@ export const changePassword = async (request: Request, response: Response) => {
 export const getUsers = async (_request: Request, response: Response) => {
   const users = await listUsers();
   return response.json(users);
+};
+
+export const getMyPosts = async (request: Request, response: Response) => {
+  const userId = request.user?.id;
+  if (!userId) return response.status(401).json({ message: "Authentication required." });
+  const posts = await listPostsByUser(userId);
+  return response.json(posts);
 };

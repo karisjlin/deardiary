@@ -1,10 +1,11 @@
 import { pool } from "../config/db.js";
+import { findOrCreateCommunity } from "./communityModel.js";
 
 export interface PostRecord {
   id: number;
   title: string;
   body: string;
-  community: string;
+  community: string[];
   created_at: string;
   author_id: number;
   author_username: string;
@@ -14,7 +15,7 @@ export interface PostRecord {
   favourited_by_me: boolean;
 }
 
-const basePostQuery = `
+export const basePostQuery = `
   SELECT
     p.id,
     p.title,
@@ -57,13 +58,26 @@ export const createPost = async (
   userId: number,
   title: string,
   body: string,
-  community: string
+  communities: string[]
 ) => {
+  const normalized = communities.map((c) => c.trim().toLowerCase()).filter(Boolean);
+  await Promise.all(normalized.map(findOrCreateCommunity));
   await pool.query(
     `INSERT INTO posts (user_id, title, body, community)
      VALUES ($1, $2, $3, $4)`,
-    [userId, title, body, community]
+    [userId, title, body, normalized]
   );
+};
+
+export const listPostsByUser = async (userId: number) => {
+  const result = await pool.query<PostRecord>(
+    `${basePostQuery}
+     WHERE p.user_id = $2
+     GROUP BY p.id, u.id
+     ORDER BY p.created_at DESC`,
+    [userId, userId]
+  );
+  return result.rows;
 };
 
 export const toggleLike = async (userId: number, postId: number) => {

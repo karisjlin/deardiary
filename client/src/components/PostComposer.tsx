@@ -1,32 +1,29 @@
-import { Button, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Button, Paper, Stack, TextField } from "@mui/material";
 import { useState } from "react";
 
 export const PostComposer = ({
   onSubmit
 }: {
-  onSubmit: (payload: { title: string; body: string; community: string }) => Promise<void>;
+  onSubmit: (payload: { title: string; body: string; communities: string[] }) => Promise<void>;
 }) => {
   const [form, setForm] = useState({
     title: "",
     body: "",
-    community: "general"
+    communities: "general"
   });
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    await onSubmit(form);
-    setForm({
-      title: "",
-      body: "",
-      community: "general"
-    });
+    const communities = form.communities
+      .split(",")
+      .map((c) => c.trim().toLowerCase())
+      .filter(Boolean);
+    await onSubmit({ title: form.title, body: form.body, communities });
+    setForm({ title: "", body: "", communities: "general" });
   };
 
   return (
     <Paper className="composer" elevation={0}>
-      <Typography variant="h5" sx={{ mb: 2 }}>
-        Create a post
-      </Typography>
       <Stack component="form" spacing={2} onSubmit={submit}>
         <TextField
           label="Title"
@@ -35,9 +32,10 @@ export const PostComposer = ({
           required
         />
         <TextField
-          label="Community"
-          value={form.community}
-          onChange={(event) => setForm((current) => ({ ...current, community: event.target.value }))}
+          label="Communities"
+          value={form.communities}
+          helperText="Separate multiple communities with commas"
+          onChange={(event) => setForm((current) => ({ ...current, communities: event.target.value.toLowerCase() }))}
           required
         />
         <TextField
