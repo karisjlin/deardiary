@@ -1,20 +1,24 @@
 import { Router } from "express";
 import {
   addPost,
+  editPost,
   favouritePost,
   getPostById,
   getPosts,
-  likePost
+  likePost,
+  removePost
 } from "../controllers/postController.js";
 import { addComment, getComments, removeComment } from "../controllers/commentController.js";
-import { requireAuth } from "../middleware/auth.js";
+import { optionalAuth, requireAuth } from "../middleware/auth.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const postRoutes = Router();
 
-postRoutes.get("/", asyncHandler(getPosts));
-postRoutes.get("/:postId", asyncHandler(getPostById));
+postRoutes.get("/", optionalAuth, asyncHandler(getPosts));
+postRoutes.get("/:postId", optionalAuth, asyncHandler(getPostById));
 postRoutes.post("/", requireAuth, asyncHandler(addPost));
+postRoutes.patch("/:postId", requireAuth, asyncHandler(editPost));
+postRoutes.delete("/:postId", requireAuth, asyncHandler(removePost));
 postRoutes.post("/:postId/like", requireAuth, asyncHandler(likePost));
 postRoutes.post("/:postId/favourite", requireAuth, asyncHandler(favouritePost));
 

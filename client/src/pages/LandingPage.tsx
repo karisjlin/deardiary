@@ -111,7 +111,7 @@ export const LandingPage = () => {
                     />
                   </Stack>
                   <Typography variant="body2" color="text.secondary">
-                    @{post.author_username} in r/{post.community}
+                    @{post.author_username} in {post.community.map((c) => `d/${c}`).join(", ")}
                   </Typography>
                 </Box>
               ))}

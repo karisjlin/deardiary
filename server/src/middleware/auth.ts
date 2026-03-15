@@ -20,3 +20,19 @@ export const requireAuth = (
     return response.status(401).json({ message: "Invalid or expired token." });
   }
 };
+
+export const optionalAuth = (
+  request: Request,
+  _response: Response,
+  next: NextFunction
+) => {
+  const authHeader = request.headers.authorization;
+  if (authHeader?.startsWith("Bearer ")) {
+    try {
+      request.user = verifyToken(authHeader.replace("Bearer ", ""));
+    } catch {
+      // invalid token — proceed as unauthenticated
+    }
+  }
+  return next();
+};

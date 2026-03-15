@@ -15,6 +15,7 @@ export interface Post {
   author_username: string;
   likes_count: number;
   favourites_count: number;
+  comments_count: number;
   liked_by_me: boolean;
   favourited_by_me: boolean;
 }

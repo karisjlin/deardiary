@@ -2,10 +2,12 @@ import type { Request, Response } from "express";
 import { z } from "zod";
 import {
   createPost,
+  deletePost,
   findPostById,
   listPosts,
   toggleFavourite,
-  toggleLike
+  toggleLike,
+  updatePost
 } from "../models/postModel.js";
 
 const createPostSchema = z.object({
@@ -18,8 +20,11 @@ const postIdSchema = z.object({
   postId: z.coerce.number().int().positive()
 });
 
+const sortSchema = z.enum(["recent", "top"]).default("recent");
+
 export const getPosts = async (request: Request, response: Response) => {
-  const posts = await listPosts(request.user?.id ?? null);
+  const sort = sortSchema.parse(request.query.sort ?? "recent");
+  const posts = await listPosts(request.user?.id ?? null, sort);
   return response.json(posts);
 };
 
@@ -39,6 +44,28 @@ export const addPost = async (request: Request, response: Response) => {
   await createPost(request.user!.id, payload.title, payload.body, payload.communities);
   const posts = await listPosts(request.user!.id);
   return response.status(201).json(posts[0]);
+};
+
+const editPostSchema = z.object({
+  title: z.string().min(4).max(160),
+  body: z.string().min(10).max(4000),
+  communities: z.array(z.string().min(1).max(80)).min(1)
+});
+
+export const editPost = async (request: Request, response: Response) => {
+  const { postId } = postIdSchema.parse(request.params);
+  const payload = editPostSchema.parse(request.body);
+  const updated = await updatePost(postId, request.user!.id, payload.title, payload.body, payload.communities);
+  if (!updated) return response.status(404).json({ message: "Post not found or not yours." });
+  const post = await findPostById(postId, request.user!.id);
+  return response.json(post);
+};
+
+export const removePost = async (request: Request, response: Response) => {
+  const { postId } = postIdSchema.parse(request.params);
+  const deleted = await deletePost(postId, request.user!.id);
+  if (!deleted) return response.status(404).json({ message: "Post not found or not yours." });
+  return response.status(204).send();
 };
 
 export const likePost = async (request: Request, response: Response) => {

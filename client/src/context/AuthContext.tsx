@@ -20,7 +20,7 @@ interface AuthContextValue {
   signOut: () => void;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 const storageKey = "redditclone.auth";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {

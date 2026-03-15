@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../api/client";
 import { PostCard } from "../components/PostCard";
+import { useAuth } from "../context/AuthContext";
 import type { Post } from "../types";
 
 type Sort = "recent" | "top";
 
 export const CommunityPage = () => {
+  const { user } = useAuth();
   const { name } = useParams<{ name: string }>();
   const [posts, setPosts] = useState<Post[]>([]);
   const [sort, setSort] = useState<Sort>("recent");
@@ -36,6 +38,16 @@ export const CommunityPage = () => {
     await loadPosts(sort);
   };
 
+  const editPost = async (postId: number, title: string, body: string, communities: string[]) => {
+    await api.patch(`/posts/${postId}`, { title, body, communities });
+    await loadPosts(sort);
+  };
+
+  const deletePost = async (postId: number) => {
+    await api.delete(`/posts/${postId}`);
+    await loadPosts(sort);
+  };
+
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
@@ -56,7 +68,14 @@ export const CommunityPage = () => {
           <Typography color="text.secondary">No posts in this community yet.</Typography>
         ) : (
           posts.map((post) => (
-            <PostCard key={post.id} post={post} onLike={likePost} onFavourite={favouritePost} />
+            <PostCard
+              key={post.id}
+              post={post}
+              onLike={likePost}
+              onFavourite={favouritePost}
+              onEdit={post.author_id === user?.id ? editPost : undefined}
+              onDelete={post.author_id === user?.id ? deletePost : undefined}
+            />
           ))
         )}
       </Stack>

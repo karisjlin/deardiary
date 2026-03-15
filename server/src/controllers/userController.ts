@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
 import { z } from "zod";
 import { findUserById, listUsers, updateUserPassword } from "../models/userModel.js";
-import { listPostsByUser } from "../models/postModel.js";
+import { listFavouredPostsByUser, listLikedPostsByUser, listPostsByUser } from "../models/postModel.js";
 
 export const getCurrentUser = async (request: Request, response: Response) => {
   const userId = request.user?.id;
@@ -43,5 +43,19 @@ export const getMyPosts = async (request: Request, response: Response) => {
   const userId = request.user?.id;
   if (!userId) return response.status(401).json({ message: "Authentication required." });
   const posts = await listPostsByUser(userId);
+  return response.json(posts);
+};
+
+export const getMyLikedPosts = async (request: Request, response: Response) => {
+  const userId = request.user?.id;
+  if (!userId) return response.status(401).json({ message: "Authentication required." });
+  const posts = await listLikedPostsByUser(userId);
+  return response.json(posts);
+};
+
+export const getMyFavouredPosts = async (request: Request, response: Response) => {
+  const userId = request.user?.id;
+  if (!userId) return response.status(401).json({ message: "Authentication required." });
+  const posts = await listFavouredPostsByUser(userId);
   return response.json(posts);
 };

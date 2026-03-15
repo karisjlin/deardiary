@@ -37,9 +37,14 @@ export const listCommunityPosts = async (
   return result.rows;
 };
 
-export const listAllCommunities = async (): Promise<CommunityRecord[]> => {
-  const result = await pool.query<CommunityRecord>(
-    `SELECT * FROM communities ORDER BY name ASC`
+export const listAllCommunities = async (): Promise<(CommunityRecord & { post_count: number })[]> => {
+  const result = await pool.query<CommunityRecord & { post_count: number }>(
+    `SELECT c.*, COUNT(p.id)::int AS post_count
+     FROM communities c
+     LEFT JOIN posts p ON c.name = ANY(p.community)
+     GROUP BY c.id
+     ORDER BY c.name ASC`,
+    []
   );
   return result.rows;
 };

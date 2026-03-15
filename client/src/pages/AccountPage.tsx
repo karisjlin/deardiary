@@ -5,6 +5,14 @@ import { PostCard } from "../components/PostCard";
 import { useAuth } from "../context/AuthContext";
 import type { Post } from "../types";
 
+type Tab = "posts" | "likes" | "favourites";
+
+const TABS: { key: Tab; label: string; endpoint: string }[] = [
+  { key: "posts",      label: "Posts",      endpoint: "/users/me/posts"     },
+  { key: "likes",      label: "Likes",      endpoint: "/users/me/liked"     },
+  { key: "favourites", label: "Favourites", endpoint: "/users/me/favourited" },
+];
+
 export const AccountPage = () => {
   const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
@@ -12,11 +20,17 @@ export const AccountPage = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState<Tab>("posts");
   const [posts, setPosts] = useState<Post[]>([]);
 
-  useEffect(() => {
-    api.get<Post[]>("/users/me/posts").then(({ data }) => setPosts(data)).catch(() => {});
-  }, []);
+  const activeTab = TABS.find((t) => t.key === tab)!;
+
+  const reload = async () => {
+    const { data } = await api.get<Post[]>(activeTab.endpoint);
+    setPosts(data);
+  };
+
+  useEffect(() => { void reload(); }, [tab]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,14 +50,28 @@ export const AccountPage = () => {
 
   const likePost = async (postId: number) => {
     await api.post(`/posts/${postId}/like`);
-    const { data } = await api.get<Post[]>("/users/me/posts");
-    setPosts(data);
+    await reload();
   };
 
   const favouritePost = async (postId: number) => {
     await api.post(`/posts/${postId}/favourite`);
-    const { data } = await api.get<Post[]>("/users/me/posts");
-    setPosts(data);
+    await reload();
+  };
+
+  const editPost = async (postId: number, title: string, body: string, communities: string[]) => {
+    await api.patch(`/posts/${postId}`, { title, body, communities });
+    await reload();
+  };
+
+  const deletePost = async (postId: number) => {
+    await api.delete(`/posts/${postId}`);
+    await reload();
+  };
+
+  const emptyMessages: Record<Tab, string> = {
+    posts:      "You haven't posted anything yet.",
+    likes:      "You haven't liked any posts yet.",
+    favourites: "You haven't favourited any posts yet.",
   };
 
   return (
@@ -65,8 +93,28 @@ export const AccountPage = () => {
         >
           Reset password
         </Typography>
+
+        {/* Tab links */}
+        <Stack spacing={1} sx={{ mt: 3 }}>
+          {TABS.map((t) => (
+            <Typography
+              key={t.key}
+              variant="body1"
+              onClick={() => setTab(t.key)}
+              sx={{
+                cursor: "pointer",
+                fontWeight: tab === t.key ? 700 : 400,
+                textDecoration: tab === t.key ? "underline" : "none",
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              {t.label}
+            </Typography>
+          ))}
+        </Stack>
+
         {showForm && (
-          <Box component="form" onSubmit={handleSubmit}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             <Stack spacing={2}>
               {success && <Alert severity="success">Password updated successfully.</Alert>}
               {error && <Alert severity="error">{error}</Alert>}
@@ -86,15 +134,22 @@ export const AccountPage = () => {
         )}
       </Box>
 
-      {/* Middle: posts */}
+      {/* Right: post list for active tab */}
       <Box>
-        <Typography variant="h5" sx={{ mb: 2 }}>Posts</Typography>
+        <Typography variant="h5" sx={{ mb: 2 }}>{activeTab.label}</Typography>
         {posts.length === 0 ? (
-          <Typography color="text.secondary">You haven't posted anything yet.</Typography>
+          <Typography color="text.secondary">{emptyMessages[tab]}</Typography>
         ) : (
           <Stack spacing={2}>
             {posts.map((post) => (
-              <PostCard key={post.id} post={post} onLike={likePost} onFavourite={favouritePost} />
+              <PostCard
+                key={post.id}
+                post={post}
+                onLike={likePost}
+                onFavourite={favouritePost}
+                onEdit={tab === "posts" ? editPost : undefined}
+                onDelete={tab === "posts" ? deletePost : undefined}
+              />
             ))}
           </Stack>
         )}
