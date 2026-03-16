@@ -73,35 +73,35 @@ export const createPost = async (
   );
 };
 
-export const listPostsByUser = async (userId: number) => {
+export const listPostsByUser = async (profileUserId: number, viewerId: number | null = null) => {
   const result = await pool.query<PostRecord>(
     `${basePostQuery}
      WHERE p.user_id = $2
      GROUP BY p.id, u.id
      ORDER BY p.created_at DESC`,
-    [userId, userId]
+    [viewerId ?? 0, profileUserId]
   );
   return result.rows;
 };
 
-export const listLikedPostsByUser = async (userId: number) => {
+export const listLikedPostsByUser = async (profileUserId: number, viewerId: number | null = null) => {
   const result = await pool.query<PostRecord>(
     `${basePostQuery}
      WHERE EXISTS (SELECT 1 FROM post_likes pl2 WHERE pl2.post_id = p.id AND pl2.user_id = $2)
      GROUP BY p.id, u.id
      ORDER BY p.created_at DESC`,
-    [userId, userId]
+    [viewerId ?? 0, profileUserId]
   );
   return result.rows;
 };
 
-export const listFavouredPostsByUser = async (userId: number) => {
+export const listFavouredPostsByUser = async (profileUserId: number, viewerId: number | null = null) => {
   const result = await pool.query<PostRecord>(
     `${basePostQuery}
      WHERE EXISTS (SELECT 1 FROM favourites f2 WHERE f2.post_id = p.id AND f2.user_id = $2)
      GROUP BY p.id, u.id
      ORDER BY p.created_at DESC`,
-    [userId, userId]
+    [viewerId ?? 0, profileUserId]
   );
   return result.rows;
 };

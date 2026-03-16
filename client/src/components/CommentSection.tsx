@@ -1,5 +1,6 @@
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import SendRounded from "@mui/icons-material/SendRounded";
+import { Link } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -107,7 +108,13 @@ export const CommentSection = ({ postId }: { postId: number }) => {
             <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
               <Stack spacing={0.5} sx={{ flex: 1 }}>
                 <Stack direction="row" spacing={1} alignItems="center">
-                  <Typography variant="body2" fontWeight={600}>
+                  <Typography
+                    variant="body2"
+                    fontWeight={600}
+                    component={Link}
+                    to={`/app/u/${comment.author_username}`}
+                    sx={{ textDecoration: "none", color: "inherit", "&:hover": { textDecoration: "underline" } }}
+                  >
                     @{comment.author_username}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">

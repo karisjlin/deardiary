@@ -47,6 +47,14 @@ export const updateUserPassword = async (id: number, passwordHash: string) => {
   );
 };
 
+export const findUserByUsername = async (username: string) => {
+  const result = await pool.query<Omit<UserRecord, "password_hash">>(
+    "SELECT id, username, email, bio, created_at FROM users WHERE username = $1",
+    [username]
+  );
+  return result.rows[0] ?? null;
+};
+
 export const listUsers = async () => {
   const result = await pool.query<Omit<UserRecord, "password_hash">>(
     "SELECT id, username, email, bio, created_at FROM users ORDER BY created_at DESC"

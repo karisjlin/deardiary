@@ -64,7 +64,13 @@ export const PostCard = ({
           ))}
         </Stack>
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            component={Link}
+            to={`/app/u/${post.author_username}`}
+            sx={{ textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
+          >
             @{post.author_username}
           </Typography>
           {onEdit && (

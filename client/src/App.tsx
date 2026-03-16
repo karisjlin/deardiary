@@ -7,6 +7,7 @@ import { CommunityPage } from "./pages/CommunityPage";
 import { HomePage } from "./pages/HomePage";
 import { LandingPage } from "./pages/LandingPage";
 import { PostDetailPage } from "./pages/PostDetailPage";
+import { ProfilePage } from "./pages/ProfilePage";
 
 const ProtectedApp = () => {
   const { token } = useAuth();
@@ -31,6 +32,7 @@ export const App = () => {
         <Route path="account" element={<AccountPage />} />
         <Route path="communities" element={<CommunitiesPage />} />
         <Route path="d/:name" element={<CommunityPage />} />
+        <Route path="u/:username" element={<ProfilePage />} />
       </Route>
     </Routes>
   );
