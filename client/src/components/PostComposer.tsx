@@ -45,6 +45,8 @@ export const PostComposer = ({
           multiline
           minRows={4}
           required
+          helperText="Minimum 10 characters"
+          inputProps={{ minLength: 10 }}
         />
         <Button type="submit" variant="contained">
           Publish
