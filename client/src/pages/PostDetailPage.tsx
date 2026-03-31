@@ -31,7 +31,7 @@ import { useAuth } from "../context/AuthContext";
 import type { Post } from "../types";
 
 export const PostDetailPage = () => {
-  const { postId } = useParams();
+  const { postId } = useParams<{ postId: string }>();
   const { user, token } = useAuth();
   const navigate = useNavigate();
   const [post, setPost] = useState<Post | null>(null);
@@ -199,6 +199,7 @@ export const PostDetailPage = () => {
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
               required
+              slotProps={{ htmlInput: { minLength: 4, maxLength: 160 } }}
             />
             <TextField
               label="Communities"
@@ -214,6 +215,7 @@ export const PostDetailPage = () => {
               multiline
               minRows={4}
               required
+              slotProps={{ htmlInput: { minLength: 10, maxLength: 4000 } }}
             />
             <Button type="submit" variant="contained">Save</Button>
           </Stack>

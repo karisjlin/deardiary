@@ -57,6 +57,7 @@ export const AuthForm = ({
             value={form.username}
             onChange={(event) => setForm((current) => ({ ...current, username: event.target.value }))}
             required
+            slotProps={{ htmlInput: { minLength: 3, maxLength: 40 } }}
           />
         ) : null}
         <TextField
@@ -72,6 +73,7 @@ export const AuthForm = ({
           value={form.password}
           onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
           required
+          slotProps={{ htmlInput: { minLength: 6 } }}
         />
         {error ? <Alert severity="error">{error}</Alert> : null}
         <Button type="submit" variant="contained" size="large" disabled={loading}>

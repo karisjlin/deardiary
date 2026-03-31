@@ -30,6 +30,7 @@ export const PostComposer = ({
           value={form.title}
           onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
           required
+          slotProps={{ htmlInput: { minLength: 4, maxLength: 160 } }}
         />
         <TextField
           label="Communities"
@@ -46,7 +47,7 @@ export const PostComposer = ({
           minRows={4}
           required
           helperText="Minimum 10 characters"
-          inputProps={{ minLength: 10 }}
+          slotProps={{ htmlInput: { minLength: 10, maxLength: 4000 } }}
         />
         <Button type="submit" variant="contained">
           Publish

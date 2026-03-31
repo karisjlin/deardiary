@@ -78,6 +78,7 @@ export const CommentSection = ({ postId }: { postId: number }) => {
               placeholder="Write a comment…"
               value={body}
               onChange={(e) => setBody(e.target.value)}
+              slotProps={{ htmlInput: { maxLength: 2000 } }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();

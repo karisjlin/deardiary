@@ -2,6 +2,7 @@ import ChatBubbleOutlineRounded from "@mui/icons-material/ChatBubbleOutlineRound
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import EditRounded from "@mui/icons-material/EditRounded";
 import FavoriteBorderRounded from "@mui/icons-material/FavoriteBorderRounded";
+import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
 import ThumbUpOffAltRounded from "@mui/icons-material/ThumbUpOffAltRounded";
 import ThumbUpRounded from "@mui/icons-material/ThumbUpRounded";
 import {
@@ -106,7 +107,7 @@ export const PostCard = ({
         <Button
           variant={post.favourited_by_me ? "contained" : "outlined"}
           color="secondary"
-          startIcon={<FavoriteBorderRounded />}
+          startIcon={post.favourited_by_me ? <FavoriteRounded /> : <FavoriteBorderRounded />}
           onClick={() => onFavourite(post.id)}
         >
           {post.favourites_count} Favourites
@@ -147,6 +148,7 @@ export const PostCard = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
+              slotProps={{ htmlInput: { minLength: 4, maxLength: 160 } }}
             />
             <TextField
               label="Communities"
@@ -162,6 +164,7 @@ export const PostCard = ({
               multiline
               minRows={4}
               required
+              slotProps={{ htmlInput: { minLength: 10, maxLength: 4000 } }}
             />
             <Button type="submit" variant="contained">Save</Button>
           </Stack>

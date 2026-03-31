@@ -66,11 +66,13 @@ export const createPost = async (
 ) => {
   const normalized = communities.map((c) => c.trim().toLowerCase()).filter(Boolean);
   await Promise.all(normalized.map(findOrCreateCommunity));
-  await pool.query(
+  const result = await pool.query<{ id: number }>(
     `INSERT INTO posts (user_id, title, body, community)
-     VALUES ($1, $2, $3, $4)`,
+     VALUES ($1, $2, $3, $4)
+     RETURNING id`,
     [userId, title, body, normalized]
   );
+  return result.rows[0].id;
 };
 
 export const listPostsByUser = async (profileUserId: number, viewerId: number | null = null) => {

@@ -41,9 +41,9 @@ export const getPostById = async (request: Request, response: Response) => {
 
 export const addPost = async (request: Request, response: Response) => {
   const payload = createPostSchema.parse(request.body);
-  await createPost(request.user!.id, payload.title, payload.body, payload.communities);
-  const posts = await listPosts(request.user!.id);
-  return response.status(201).json(posts[0]);
+  const postId = await createPost(request.user!.id, payload.title, payload.body, payload.communities);
+  const post = await findPostById(postId, request.user!.id);
+  return response.status(201).json(post);
 };
 
 const editPostSchema = z.object({

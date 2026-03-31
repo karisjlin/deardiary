@@ -37,7 +37,7 @@ export const createComment = async (
     "SELECT username FROM users WHERE id = $1",
     [userId]
   );
-  return { ...row, author_username: userResult.rows[0].username };
+  return { ...row, author_username: userResult.rows[0]?.username ?? "deleted" };
 };
 
 export const deleteComment = async (
