@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { findUserById, findUserByUsername, listUsers, updateUserPassword } from "../models/userModel.js";
+import { findUserById, findUserByUsername, updateUserPassword } from "../models/userModel.js";
 import { listFavouredPostsByUser, listLikedPostsByUser, listPostsByUser } from "../models/postModel.js";
 
 export const getCurrentUser = async (request: Request, response: Response) => {
@@ -32,11 +32,6 @@ export const changePassword = async (request: Request, response: Response) => {
   await updateUserPassword(userId, passwordHash);
 
   return response.json({ message: "Password updated." });
-};
-
-export const getUsers = async (_request: Request, response: Response) => {
-  const users = await listUsers();
-  return response.json(users);
 };
 
 export const getMyPosts = async (request: Request, response: Response) => {

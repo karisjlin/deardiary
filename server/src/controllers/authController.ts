@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { createUser, findUserByEmail } from "../models/userModel.js";
+import { createUser, findUserByEmail, findUserByUsername } from "../models/userModel.js";
 import { signToken } from "../utils/jwt.js";
 
 const authSchema = z.object({
@@ -17,10 +17,14 @@ export const signUp = async (request: Request, response: Response) => {
     })
     .parse(request.body);
 
-  const existingUser = await findUserByEmail(payload.email);
-
-  if (existingUser) {
+  const existingEmail = await findUserByEmail(payload.email);
+  if (existingEmail) {
     return response.status(409).json({ message: "Email already in use." });
+  }
+
+  const existingUsername = await findUserByUsername(payload.username);
+  if (existingUsername) {
+    return response.status(409).json({ message: "Username already taken." });
   }
 
   const passwordHash = await bcrypt.hash(payload.password, 10);
