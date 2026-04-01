@@ -90,8 +90,8 @@ export const PostDetailPage = () => {
   const isOwner = user && post && post.author_id === user.id;
 
   return (
-    <Box className="landing-shell">
-      <Header />
+    <Box className={token ? undefined : "landing-shell"}>
+      {!token && <Header />}
       <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
         <Stack spacing={3}>
           <Button

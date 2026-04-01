@@ -88,7 +88,7 @@ export const PostCard = ({
       </Stack>
 
       <Typography variant="h5" sx={{ mb: 1 }}>
-        <Link to={`/posts/${post.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+        <Link to={`/app/posts/${post.id}`} style={{ textDecoration: "none", color: "inherit" }}>
           {post.title}
         </Link>
       </Typography>
@@ -114,7 +114,7 @@ export const PostCard = ({
         </Button>
         <Button
           component={Link}
-          to={`/posts/${post.id}`}
+          to={`/app/posts/${post.id}`}
           variant="text"
           startIcon={<ChatBubbleOutlineRounded />}
           sx={{ color: "text.secondary" }}

@@ -34,29 +34,49 @@ export const HomePage = () => {
     body: string;
     communities: string[];
   }) => {
-    await api.post("/posts", payload);
-    setComposerOpen(false);
-    await loadPosts(sort);
+    try {
+      await api.post("/posts", payload);
+      setComposerOpen(false);
+      await loadPosts(sort);
+    } catch {
+      setError("Failed to create post.");
+    }
   };
 
   const likePost = async (postId: number) => {
-    await api.post(`/posts/${postId}/like`);
-    await loadPosts(sort);
+    try {
+      await api.post(`/posts/${postId}/like`);
+      await loadPosts(sort);
+    } catch {
+      setError("Failed to like post.");
+    }
   };
 
   const favouritePost = async (postId: number) => {
-    await api.post(`/posts/${postId}/favourite`);
-    await loadPosts(sort);
+    try {
+      await api.post(`/posts/${postId}/favourite`);
+      await loadPosts(sort);
+    } catch {
+      setError("Failed to favourite post.");
+    }
   };
 
   const editPost = async (postId: number, title: string, body: string, communities: string[]) => {
-    await api.patch(`/posts/${postId}`, { title, body, communities });
-    await loadPosts(sort);
+    try {
+      await api.patch(`/posts/${postId}`, { title, body, communities });
+      await loadPosts(sort);
+    } catch {
+      setError("Failed to update post.");
+    }
   };
 
   const deletePost = async (postId: number) => {
-    await api.delete(`/posts/${postId}`);
-    await loadPosts(sort);
+    try {
+      await api.delete(`/posts/${postId}`);
+      await loadPosts(sort);
+    } catch {
+      setError("Failed to delete post.");
+    }
   };
 
   return (

@@ -29,6 +29,7 @@ export const App = () => {
       <Route path="/posts/:postId" element={<PostDetailPage />} />
       <Route path="/app" element={<ProtectedApp />}>
         <Route index element={<HomePage />} />
+        <Route path="posts/:postId" element={<PostDetailPage />} />
         <Route path="account" element={<AccountPage />} />
         <Route path="communities" element={<CommunitiesPage />} />
         <Route path="d/:name" element={<CommunityPage />} />
