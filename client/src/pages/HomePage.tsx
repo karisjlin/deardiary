@@ -1,82 +1,37 @@
 import { Alert, Box, Dialog, DialogContent, DialogTitle, Fab, IconButton, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api/client";
 import { PostCard } from "../components/PostCard";
 import { PostComposer } from "../components/PostComposer";
 import { useAuth } from "../context/AuthContext";
-import type { Post } from "../types";
+import {
+  postListKey,
+  useCreatePost,
+  useDeletePost,
+  useEditPost,
+  usePosts,
+  useToggleFavourite,
+  useToggleLike,
+} from "../hooks/postQueries";
 
 export const HomePage = () => {
   const { user } = useAuth();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [composerOpen, setComposerOpen] = useState(false);
   const [sort, setSort] = useState<"recent" | "top">("recent");
 
-  const loadPosts = async (currentSort: "recent" | "top") => {
-    try {
-      const { data } = await api.get<Post[]>(`/posts?sort=${currentSort}`);
-      setPosts(data);
-    } catch {
-      setError("Unable to load posts.");
-    }
-  };
+  const qKey = postListKey(sort);
+  const { data: posts = [], error } = usePosts(sort);
+  const createPost = useCreatePost(sort);
+  const toggleLike = useToggleLike(qKey);
+  const toggleFavourite = useToggleFavourite(qKey);
+  const editPost = useEditPost(qKey);
+  const deletePost = useDeletePost(qKey);
 
-  useEffect(() => {
-    void loadPosts(sort);
-  }, [sort]);
-
-  const createPost = async (payload: {
-    title: string;
-    body: string;
-    communities: string[];
-  }) => {
-    try {
-      await api.post("/posts", payload);
-      setComposerOpen(false);
-      await loadPosts(sort);
-    } catch {
-      setError("Failed to create post.");
-    }
-  };
-
-  const likePost = async (postId: number) => {
-    try {
-      await api.post(`/posts/${postId}/like`);
-      await loadPosts(sort);
-    } catch {
-      setError("Failed to like post.");
-    }
-  };
-
-  const favouritePost = async (postId: number) => {
-    try {
-      await api.post(`/posts/${postId}/favourite`);
-      await loadPosts(sort);
-    } catch {
-      setError("Failed to favourite post.");
-    }
-  };
-
-  const editPost = async (postId: number, title: string, body: string, communities: string[]) => {
-    try {
-      await api.patch(`/posts/${postId}`, { title, body, communities });
-      await loadPosts(sort);
-    } catch {
-      setError("Failed to update post.");
-    }
-  };
-
-  const deletePost = async (postId: number) => {
-    try {
-      await api.delete(`/posts/${postId}`);
-      await loadPosts(sort);
-    } catch {
-      setError("Failed to delete post.");
-    }
+  const handleCreate = async (payload: { title: string; body: string; communities: string[] }) => {
+    await createPost.mutateAsync(payload);
+    setComposerOpen(false);
   };
 
   return (
@@ -104,29 +59,26 @@ export const HomePage = () => {
             <ToggleButton value="top">Top</ToggleButton>
           </ToggleButtonGroup>
         </Stack>
-        {error ? <Alert severity="error">{error}</Alert> : null}
+        {error ? <Alert severity="error">Unable to load posts.</Alert> : null}
         {posts.map((post) => (
           <PostCard
             key={post.id}
             post={post}
-            onLike={likePost}
-            onFavourite={favouritePost}
-            onEdit={post.author_id === user?.id ? editPost : undefined}
-            onDelete={post.author_id === user?.id ? deletePost : undefined}
+            onLike={(id) => toggleLike.mutate(id)}
+            onFavourite={(id) => toggleFavourite.mutate(id)}
+            onEdit={post.author_id === user?.id
+              ? (id, title, body, communities) => editPost.mutate({ postId: id, title, body, communities })
+              : undefined}
+            onDelete={post.author_id === user?.id
+              ? (id) => deletePost.mutate(id)
+              : undefined}
           />
         ))}
       </Stack>
 
       <Fab
         onClick={() => setComposerOpen(true)}
-        sx={{
-          position: "fixed",
-          bottom: 32,
-          right: 32,
-          bgcolor: "primary.main",
-          color: "white",
-          "&:hover": { bgcolor: "primary.dark" }
-        }}
+        sx={{ position: "fixed", bottom: 32, right: 32, bgcolor: "primary.main", color: "white", "&:hover": { bgcolor: "primary.dark" } }}
       >
         <AddIcon />
       </Fab>
@@ -139,7 +91,7 @@ export const HomePage = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          <PostComposer onSubmit={createPost} />
+          <PostComposer onSubmit={handleCreate} />
         </DialogContent>
       </Dialog>
     </Box>

@@ -11,51 +11,33 @@ import {
   Tooltip,
   Typography
 } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
-import { api } from "../api/client";
+import { useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import type { Comment } from "../types";
+import { useComments, useCreateComment, useDeleteComment } from "../hooks/commentQueries";
 
 export const CommentSection = ({ postId }: { postId: number }) => {
   const { user, token } = useAuth();
-  const [comments, setComments] = useState<Comment[]>([]);
   const [body, setBody] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const loadComments = async () => {
-    const { data } = await api.get<Comment[]>(`/posts/${postId}/comments`);
-    setComments(data);
-  };
+  const { data: comments = [], error } = useComments(postId);
+  const createComment = useCreateComment(postId);
+  const deleteComment = useDeleteComment(postId);
 
-  useEffect(() => {
-    void loadComments();
-  }, [postId]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!body.trim()) return;
-    setError(null);
-    setSubmitting(true);
-    try {
-      await api.post(`/posts/${postId}/comments`, { body: body.trim() });
-      setBody("");
-      await loadComments();
-      inputRef.current?.focus();
-    } catch {
-      setError("Failed to post comment.");
-    } finally {
-      setSubmitting(false);
-    }
+    await createComment.mutateAsync(body.trim());
+    setBody("");
+    inputRef.current?.focus();
   };
 
-  const handleDelete = async (commentId: number) => {
-    try {
-      await api.delete(`/posts/${postId}/comments/${commentId}`);
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
-    } catch {
-      setError("Failed to delete comment.");
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      createComment.mutate(body.trim());
+      setBody("");
+      inputRef.current?.focus();
     }
   };
 
@@ -78,20 +60,15 @@ export const CommentSection = ({ postId }: { postId: number }) => {
               placeholder="Write a comment…"
               value={body}
               onChange={(e) => setBody(e.target.value)}
+              onKeyDown={handleKeyDown}
               slotProps={{ htmlInput: { maxLength: 2000 } }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  void handleSubmit(e as unknown as React.FormEvent);
-                }
-              }}
             />
             <Tooltip title="Post comment">
               <span>
                 <IconButton
                   type="submit"
                   color="primary"
-                  disabled={submitting || !body.trim()}
+                  disabled={createComment.isPending || !body.trim()}
                 >
                   <SendRounded />
                 </IconButton>
@@ -101,7 +78,9 @@ export const CommentSection = ({ postId }: { postId: number }) => {
         </Box>
       )}
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>Unable to load comments.</Alert>}
+      {createComment.isError && <Alert severity="error" sx={{ mb: 2 }}>Failed to post comment.</Alert>}
+      {deleteComment.isError && <Alert severity="error" sx={{ mb: 2 }}>Failed to delete comment.</Alert>}
 
       <Stack spacing={2}>
         {comments.map((comment) => (
@@ -120,9 +99,7 @@ export const CommentSection = ({ postId }: { postId: number }) => {
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {new Date(comment.created_at).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric"
+                      year: "numeric", month: "short", day: "numeric"
                     })}
                   </Typography>
                 </Stack>
@@ -134,7 +111,7 @@ export const CommentSection = ({ postId }: { postId: number }) => {
                 <Tooltip title="Delete comment">
                   <IconButton
                     size="small"
-                    onClick={() => handleDelete(comment.id)}
+                    onClick={() => deleteComment.mutate(comment.id)}
                     sx={{ ml: 1, color: "text.disabled" }}
                   >
                     <DeleteOutlineRounded fontSize="small" />
@@ -145,7 +122,7 @@ export const CommentSection = ({ postId }: { postId: number }) => {
             <Divider sx={{ mt: 2 }} />
           </Box>
         ))}
-        {comments.length === 0 && (
+        {comments.length === 0 && !error && (
           <Typography variant="body2" color="text.secondary">
             No comments yet. {token ? "Be the first!" : "Sign in to comment."}
           </Typography>

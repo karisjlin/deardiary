@@ -1,27 +1,13 @@
 import { Alert, Box, Chip, Paper, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api/client";
-
-interface Community {
-  id: number;
-  name: string;
-  created_at: string;
-  post_count: number;
-}
+import { useCommunities } from "../hooks/communityQueries";
 
 type Sort = "alpha" | "popular";
 
 export const CommunitiesPage = () => {
-  const [communities, setCommunities] = useState<Community[]>([]);
   const [sort, setSort] = useState<Sort>("alpha");
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    api.get<Community[]>("/communities")
-      .then(({ data }) => setCommunities(data))
-      .catch(() => setError("Unable to load communities."));
-  }, []);
+  const { data: communities = [], error } = useCommunities();
 
   const sorted = [...communities].sort((a, b) =>
     sort === "alpha" ? a.name.localeCompare(b.name) : b.post_count - a.post_count
@@ -41,7 +27,7 @@ export const CommunitiesPage = () => {
           <ToggleButton value="popular">Popular</ToggleButton>
         </ToggleButtonGroup>
       </Stack>
-      {error && <Alert severity="error">{error}</Alert>}
+      {error && <Alert severity="error">Unable to load communities.</Alert>}
       <Stack spacing={2}>
         {sorted.map((c) => (
           <Paper

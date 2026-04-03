@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import type { Post } from "../types";
 
 export const PostCard = ({
@@ -27,24 +28,27 @@ export const PostCard = ({
   onLike,
   onFavourite,
   onEdit,
-  onDelete
+  onDelete,
+  detail = false
 }: {
   post: Post;
-  onLike: (postId: number) => Promise<void>;
-  onFavourite: (postId: number) => Promise<void>;
-  onEdit?: (postId: number, title: string, body: string, communities: string[]) => Promise<void>;
-  onDelete?: (postId: number) => Promise<void>;
+  onLike: (postId: number) => void;
+  onFavourite: (postId: number) => void;
+  onEdit?: (postId: number, title: string, body: string, communities: string[]) => void;
+  onDelete?: (postId: number) => void;
+  detail?: boolean;
 }) => {
+  const { token } = useAuth();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [title, setTitle] = useState(post.title);
   const [body, setBody] = useState(post.body);
   const [communities, setCommunities] = useState(post.community.join(", "));
 
-  const submitEdit = async (e: React.FormEvent) => {
+  const submitEdit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const parsed = communities.split(",").map((c) => c.trim().toLowerCase()).filter(Boolean);
-    await onEdit!(post.id, title, body, parsed);
+    onEdit!(post.id, title, body, parsed);
     setEditOpen(false);
   };
 
@@ -87,10 +91,12 @@ export const PostCard = ({
         </Stack>
       </Stack>
 
-      <Typography variant="h5" sx={{ mb: 1 }}>
-        <Link to={`/app/posts/${post.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-          {post.title}
-        </Link>
+      <Typography variant={detail ? "h3" : "h5"} sx={{ mb: 1 }}>
+        {detail ? post.title : (
+          <Link to={`/app/posts/${post.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+            {post.title}
+          </Link>
+        )}
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 2 }}>
         {post.body}
@@ -101,26 +107,30 @@ export const PostCard = ({
           variant={post.liked_by_me ? "contained" : "outlined"}
           startIcon={post.liked_by_me ? <ThumbUpRounded /> : <ThumbUpOffAltRounded />}
           onClick={() => onLike(post.id)}
+          disabled={!token}
         >
-          {post.likes_count} Likes
+          {post.likes_count} {post.likes_count === 1 ? "Like" : "Likes"}
         </Button>
         <Button
           variant={post.favourited_by_me ? "contained" : "outlined"}
           color="secondary"
           startIcon={post.favourited_by_me ? <FavoriteRounded /> : <FavoriteBorderRounded />}
           onClick={() => onFavourite(post.id)}
+          disabled={!token}
         >
-          {post.favourites_count} Favourites
+          {post.favourites_count} {post.favourites_count === 1 ? "Favourite" : "Favourites"}
         </Button>
-        <Button
-          component={Link}
-          to={`/app/posts/${post.id}`}
-          variant="text"
-          startIcon={<ChatBubbleOutlineRounded />}
-          sx={{ color: "text.secondary" }}
-        >
-          {post.comments_count} {post.comments_count === 1 ? "Comment" : "Comments"}
-        </Button>
+        {!detail && (
+          <Button
+            component={Link}
+            to={`/app/posts/${post.id}`}
+            variant="text"
+            startIcon={<ChatBubbleOutlineRounded />}
+            sx={{ color: "text.secondary" }}
+          >
+            {post.comments_count} {post.comments_count === 1 ? "Comment" : "Comments"}
+          </Button>
+        )}
       </Stack>
 
       <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)} maxWidth="xs" fullWidth>
