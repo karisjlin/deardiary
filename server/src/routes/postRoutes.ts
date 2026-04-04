@@ -6,7 +6,8 @@ import {
   getPostById,
   getPosts,
   likePost,
-  removePost
+  removePost,
+  searchPosts
 } from "../controllers/postController.js";
 import { addComment, getComments, removeComment } from "../controllers/commentController.js";
 import { optionalAuth, requireAuth } from "../middleware/auth.js";
@@ -15,6 +16,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 export const postRoutes = Router();
 
 postRoutes.get("/", optionalAuth, asyncHandler(getPosts));
+postRoutes.get("/search", optionalAuth, asyncHandler(searchPosts));
 postRoutes.get("/:postId", optionalAuth, asyncHandler(getPostById));
 postRoutes.post("/", requireAuth, asyncHandler(addPost));
 postRoutes.patch("/:postId", requireAuth, asyncHandler(editPost));

@@ -1,13 +1,27 @@
 import LogoutRounded from "@mui/icons-material/LogoutRounded";
 import LoginRounded from "@mui/icons-material/LoginRounded";
-import { AppBar, Button, Menu, MenuItem, Stack, Toolbar, Typography } from "@mui/material";
-import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import SearchRounded from "@mui/icons-material/SearchRounded";
+import { AppBar, Button, InputAdornment, Menu, MenuItem, Stack, TextField, Toolbar, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export const Header = () => {
   const { user, token, signOut } = useAuth();
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [input, setInput] = useState("");
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const t = setTimeout(() => setQuery(input), 300);
+    return () => clearTimeout(t);
+  }, [input]);
+
+  useEffect(() => {
+    if (!token || query.trim().length < 2) return;
+    navigate(`/app/search?q=${encodeURIComponent(query.trim())}`);
+  }, [query]);
 
   return (
     <AppBar position="sticky" color="inherit" elevation={0} className="topbar">
@@ -20,6 +34,29 @@ export const Header = () => {
         >
           DearDiary
         </Typography>
+
+        {(
+          <TextField
+            size="small"
+            placeholder="Search posts…"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setInput("");
+            }}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchRounded fontSize="small" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ width: 240 }}
+          />
+        )}
+
         <Stack direction="row" spacing={2} alignItems="center">
           {token && user ? (
             <>

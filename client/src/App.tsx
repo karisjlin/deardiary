@@ -8,6 +8,7 @@ import { HomePage } from "./pages/HomePage";
 import { LandingPage } from "./pages/LandingPage";
 import { PostDetailPage } from "./pages/PostDetailPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { SearchPage } from "./pages/SearchPage";
 
 const ProtectedApp = () => {
   const { token } = useAuth();
@@ -32,6 +33,7 @@ export const App = () => {
         <Route path="posts/:postId" element={<PostDetailPage />} />
         <Route path="account" element={<AccountPage />} />
         <Route path="communities" element={<CommunitiesPage />} />
+        <Route path="search" element={<SearchPage />} />
         <Route path="d/:name" element={<CommunityPage />} />
         <Route path="u/:username" element={<ProfilePage />} />
       </Route>

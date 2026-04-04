@@ -5,6 +5,7 @@ import {
   deletePost,
   findPostById,
   listPosts,
+  searchPostsByQuery,
   toggleFavourite,
   toggleLike,
   updatePost
@@ -21,6 +22,13 @@ const postIdSchema = z.object({
 });
 
 const sortSchema = z.enum(["recent", "top"]).default("recent");
+const searchQuerySchema = z.object({ q: z.string().min(1).max(200) });
+
+export const searchPosts = async (request: Request, response: Response) => {
+  const { q } = searchQuerySchema.parse(request.query);
+  const posts = await searchPostsByQuery(q, request.user?.id ?? null);
+  return response.json(posts);
+};
 
 export const getPosts = async (request: Request, response: Response) => {
   const sort = sortSchema.parse(request.query.sort ?? "recent");

@@ -37,6 +37,17 @@ export const basePostQuery = `
   LEFT JOIN comments c ON c.post_id = p.id
 `;
 
+export const searchPostsByQuery = async (query: string, viewerId: number | null) => {
+  const result = await pool.query<PostRecord>(
+    `${basePostQuery}
+     WHERE p.search_vector @@ websearch_to_tsquery('english', $2)
+     GROUP BY p.id, u.id
+     ORDER BY ts_rank(p.search_vector, websearch_to_tsquery('english', $2)) DESC`,
+    [viewerId ?? 0, query]
+  );
+  return result.rows;
+};
+
 export const listPosts = async (viewerId: number | null, sort: "recent" | "top" = "recent") => {
   const orderBy = sort === "top" ? "likes_count DESC, p.created_at DESC" : "p.created_at DESC";
   const result = await pool.query<PostRecord>(

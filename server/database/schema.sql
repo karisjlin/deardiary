@@ -13,7 +13,11 @@ CREATE TABLE IF NOT EXISTS posts (
   title VARCHAR(160) NOT NULL,
   body TEXT NOT NULL,
   community TEXT[] NOT NULL DEFAULT ARRAY['general'],
-  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  search_vector TSVECTOR GENERATED ALWAYS AS (
+    setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
+    setweight(to_tsvector('english', coalesce(body,  '')), 'B')
+  ) STORED
 );
 
 CREATE TABLE IF NOT EXISTS communities (
@@ -45,4 +49,5 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_posts_search ON posts USING GIN(search_vector);
 CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id, created_at ASC);

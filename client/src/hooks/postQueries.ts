@@ -54,6 +54,16 @@ export const usePost = (postId: string | undefined) =>
     enabled: !!postId,
   });
 
+// --- Search ---
+
+export const useSearchPosts = (query: string) =>
+  useQuery({
+    queryKey: ["posts-search", query],
+    queryFn: () => api.get<Post[]>(`/posts/search?q=${encodeURIComponent(query)}`).then(r => r.data),
+    enabled: query.trim().length > 1,
+    staleTime: 10_000,
+  });
+
 // --- Create post ---
 
 export const useCreatePost = (sort: "recent" | "top") => {
