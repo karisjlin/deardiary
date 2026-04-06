@@ -18,6 +18,7 @@ interface AuthContextValue {
     password: string;
   }) => Promise<void>;
   signOut: () => void;
+  updateBio: (bio: string) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -74,8 +75,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
+  const updateBio = (bio: string) => {
+    if (!user || !token) return;
+    const updated = { ...user, bio };
+    localStorage.setItem(storageKey, JSON.stringify({ token, user: updated }));
+    startTransition(() => setUser(updated));
+  };
+
   return (
-    <AuthContext.Provider value={{ token, user, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ token, user, signIn, signUp, signOut, updateBio }}>
       {children}
     </AuthContext.Provider>
   );

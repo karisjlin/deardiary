@@ -55,9 +55,16 @@ export const ProfilePage = () => {
       <Box>
         <Typography variant="h4" sx={{ mb: 1 }}>@{username}</Typography>
         {profile && (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Joined {new Date(profile.created_at).toLocaleDateString("en-GB", { year: "numeric", month: "long" })}
-          </Typography>
+          <>
+            {profile.bio && (
+              <Typography variant="body2" sx={{ mb: 2, whiteSpace: "pre-wrap" }}>
+                {profile.bio}
+              </Typography>
+            )}
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Joined {new Date(profile.created_at).toLocaleDateString("en-GB", { year: "numeric", month: "long" })}
+            </Typography>
+          </>
         )}
         <Stack spacing={1}>
           {TABS.map((t) => (
